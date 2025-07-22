@@ -1,12 +1,14 @@
 "use client";
 
-
 import { motion } from "motion/react";
 import { FeatureBentoGrid } from "./_components/FeatureBentoGrid";
+import { UserButton, useUser } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function HeroSectionOne() {
   return (
-    <div className="relative my-10 flex flex-col items-center justify-center">
+    <div className="relative flex flex-col items-center justify-center">
       <Navbar />
       <div className="absolute inset-y-0 left-0 h-full w-px bg-neutral-200/80 dark:bg-neutral-800/80">
         <div className="absolute top-0 h-40 w-px bg-gradient-to-b from-transparent via-blue-500 to-transparent" />
@@ -53,23 +55,25 @@ export default function HeroSectionOne() {
           Deliver unmatched care for your pets with our AI-powered voice agent—built to 
           triage symptoms and offer expert guidance with follow-up 24/7 right at your fingertips.
         </motion.p>
-        <motion.div
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
-          transition={{
-            duration: 0.3,
-            delay: 1,
-          }}
-          className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4"
-        >
-          <button className="w-60 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200">
-            Explore Now
-          </button>
-        </motion.div>
+        <Link href={'/sign-in'}>
+          <motion.div
+            initial={{
+              opacity: 0,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            transition={{
+              duration: 0.3,
+              delay: 1,
+            }}
+            className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4"
+          >
+            <button className="w-60 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200">
+              Explore Now
+            </button>
+          </motion.div>
+        </Link>
         <motion.div
           initial={{
             opacity: 0,
@@ -102,15 +106,27 @@ export default function HeroSectionOne() {
 }
 
 const Navbar = () => {
+  const { user } = useUser();
   return (
     <nav className="flex w-full items-center justify-between border-t border-b border-neutral-200 px-4 py-4 dark:border-neutral-800">
       <div className="flex items-center gap-2">
         <div className="size-7 rounded-full bg-gradient-to-br from-violet-500 to-pink-500" />
-        <h1 className="text-base font-bold md:text-2xl">Aceternity UI</h1>
+        <h1 className="text-base font-bold md:text-2xl">Veterinary Answering Service</h1>
       </div>
-      <button className="w-24 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 md:w-32 dark:bg-white dark:text-black dark:hover:bg-gray-200">
-        Login
-      </button>
+      {user ? (
+        <div className="flex items-center gap-4">
+          <UserButton />
+          <Button>
+            Dashboard
+          </Button>
+        </div>
+      ) : (
+        <Link href={'/sign-in'}>
+          <Button>
+            Login
+          </Button>
+        </Link>
+      )}
     </nav>
   );
 };
