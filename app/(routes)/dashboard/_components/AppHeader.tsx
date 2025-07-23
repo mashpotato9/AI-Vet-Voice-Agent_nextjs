@@ -36,7 +36,7 @@ export default function AppHeader() {
                 </div>
             ))}
         </div>
-        <div className="scale-120">
+        <div className="scale-130">
           <UserButton />
         </div>
     </div>

@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import React, { useState } from 'react'
+import NewSession from './NewSession';
 
 export default function HistoryList() {
 
@@ -15,7 +16,9 @@ export default function HistoryList() {
                 <Image src={'/vet-assistance.png'} alt='Vet Assistance' width={200} height={2000} />
                 <h2 className='text-lg font-semibold mt-3'>No history available</h2>
                 <p>It looks like you haven't consulted with a vet yet.</p>
-                <Button className='mt-3'>Start a consultation</Button>
+                <NewSession>
+                    <Button className='mt-3 hover:scale-110'>Start a consultation</Button>
+                </NewSession>
             </div>
         ) : (
             <div>

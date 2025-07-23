@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { IconArrowRampRight, IconArrowRight } from '@tabler/icons-react';
 import Image from 'next/image';
 import React from 'react'
+import NewSession from './NewSession';
 
 type vetAgent = {
     id: number;
@@ -28,7 +29,9 @@ export default function VetAgentCard({agent}: Props) {
       />
       <h2 className='font-bold text-lg mb-1'>{agent.specialist}</h2>
       <p className='line-clamp-2 text-sm text-gray-600 mb-2'>{agent.description}</p>
-      <Button className='w-full'>Start Consultation <IconArrowRight /></Button>
+      <NewSession>
+        <Button className='w-full hover:scale-110'>Start Consultation <IconArrowRight /></Button>
+      </NewSession>
     </div>
   )
 }
