@@ -5,13 +5,14 @@ import Image from "next/image";
 type Props = {
   vetAgent: vetAgent;
   setSelectedVet: any;
+  selectedVet: vetAgent;
 };
 
-export default function SuggestedVetCard({ vetAgent, setSelectedVet }: Props) {
+export default function SuggestedVetCard({ vetAgent, setSelectedVet, selectedVet }: Props) {
   return (
-    <div className="flex flex-col items-center justify-between hover:scale-105 hover:shadow-lg 
+    <div className={`flex flex-col items-center justify-between hover:scale-105 hover:shadow-lg 
     transition-transform duration-300 shadow-gray-300 shadow-lg p-4 rounded-lg bg-gray-50 
-    cursor-pointer" onclick={() => setSelectedVet(vetAgent)}>
+    cursor-pointer ${selectedVet?.id === vetAgent.id ? "ring-1 ring-gray-400" : ""}`} onClick={() => setSelectedVet(vetAgent)}>
       <Image
         src={vetAgent.image}
         alt={vetAgent.specialist}

@@ -37,7 +37,22 @@ export default function NewSession({ children }: NewSessionProps) {
     });
 
     console.log(result.data);
-    setSuggestedVets(result.data);
+    setSuggestedVets(result.data.suggestedVets);
+    setLoading(false);
+  };
+
+  const onStartConsultation = async () => {
+    setLoading(true);
+    // save the note and selected vet to db
+    const res = await axios.post("/api/session-chat", {
+      notes: note,
+      selectedVet: selectedVet,
+    });
+    console.log(res.data);
+    if (res.data?.sessionId) {
+      console.log(res.data.sessionId);
+      // route to consultation page
+    }
     setLoading(false);
   };
 
@@ -65,9 +80,14 @@ export default function NewSession({ children }: NewSessionProps) {
               <DialogTitle>Select a Veterinarian</DialogTitle>
               <DialogDescription asChild>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-5">
-                  {VetAgents.map((vet) => (
-                    <SuggestedVetCard vetAgent={vet} key={vet.id} 
-                    setSelectedVet={() => setSelectedVet(vet)}/>
+                  {suggestedVets.map((vet) => (
+                    <SuggestedVetCard
+                      vetAgent={vet}
+                      key={vet.id}
+                      setSelectedVet={() => setSelectedVet(vet)}
+                      // @ts-ignore
+                      selectedVet={selectedVet}
+                    />
                   ))}
                 </div>
               </DialogDescription>
@@ -85,7 +105,14 @@ export default function NewSession({ children }: NewSessionProps) {
               )}
             </Button>
           ) : (
-            <Button> Start Consultation </Button>
+            <Button disabled={loading || !selectedVet} onClick={() => onStartConsultation()}>
+              Start Consultation
+              {loading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <IconArrowRight />
+              )}{" "}
+            </Button>
           )}
           <DialogClose asChild>
             <Button variant="outline" className="ml-2">
