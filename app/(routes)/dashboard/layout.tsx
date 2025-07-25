@@ -1,5 +1,5 @@
 import React from 'react'
-import AppHeader from './_components/AppHeader';
+import AppHeader from '../_components/AppHeader';
 
 
 export default function layout({
