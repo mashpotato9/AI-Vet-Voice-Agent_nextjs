@@ -18,7 +18,7 @@ import axios from "axios";
 import { vetAgent } from "./VetAgentCard";
 import { Loader2 } from "lucide-react";
 import SuggestedVetCard from "./SuggestedVetCard";
-import { VetAgents } from "@/shared/VetAgents";
+import { useRouter } from "next/navigation";
 
 interface NewSessionProps {
   children: ReactNode;
@@ -29,6 +29,7 @@ export default function NewSession({ children }: NewSessionProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [suggestedVets, setSuggestedVets] = useState<vetAgent[]>();
   const [selectedVet, setSelectedVet] = useState<vetAgent>();
+  const router = useRouter();
 
   const OnClickNext = async () => {
     setLoading(true);
@@ -52,6 +53,7 @@ export default function NewSession({ children }: NewSessionProps) {
     if (res.data?.sessionId) {
       console.log(res.data.sessionId);
       // route to consultation page
+      router.push('/dashboard/vet-agent/' + res.data.sessionId);
     }
     setLoading(false);
   };
