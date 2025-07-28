@@ -4,7 +4,7 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { vetAgent } from "../../_components/VetAgentCard";
-import { Circle, PhoneCall, PhoneOff } from "lucide-react";
+import { Circle, Loader2, PhoneCall, PhoneOff } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Vapi from "@vapi-ai/web";
@@ -18,6 +18,7 @@ type SessionInfo = {
   createdBy: string;
   createdAt: string;
   conversation: JSON;
+  voiceId: string;
 };
 type message = {
   role: string;
@@ -32,6 +33,7 @@ export default function VetAgent() {
   const [currRole, setCurrRole] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<string>("");
   const [messages, setMessages] = useState<message[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     GetSessionInfo();
@@ -44,13 +46,43 @@ export default function VetAgent() {
   };
 
   const StartChat = async () => {
+    setLoading(true);
     const vapi = new Vapi(process.env.NEXT_PUBLIC_VAPI_API_KEY!);
     setVapiInstance(vapi);
-    vapi.start(process.env.NEXT_PUBLIC_VAPI_GENERAL_VETERINARIAN_ID!);
+
+    const VapiAgentConfig = {
+      name: "AI Pet Care Agent",
+      firstMessage: "Hello! I'm your AI Pet Care Agent. I'm here to help you with your pet's health and wellness. How can I assist you today?",
+      transcriber: {
+        provider: "assembly-ai",
+        language: "en",
+      },
+      voice: {
+        provider: "playht",
+        voiceId: sessionInfo?.selectedVet?.voiceId
+      },
+      model: {
+        provider: "openai",
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: sessionInfo?.selectedVet?.agentPrompt
+          }
+        ]
+      }
+    }
+
+    console.log("VapiAgentConfig:", VapiAgentConfig);
+
+
+    // @ts-ignore
+    vapi.start(VapiAgentConfig);
 
     vapi.on("call-start", () => {
       console.log("Call started");
       setIsConnected(true);
+      setLoading(false);
     });
     vapi.on("call-end", () => {
       setIsConnected(false);
@@ -73,11 +105,11 @@ export default function VetAgent() {
       }
     });
 
-    vapiInstance.on("speech-start", () => {
+    vapi.on("speech-start", () => {
       console.log("Assistant started speaking");
       setCurrRole("assistant");
     });
-    vapiInstance.on("speech-end", () => {
+    vapi.on("speech-end", () => {
       console.log("Assistant stopped speaking");
       setCurrRole("user");
     });
@@ -146,8 +178,9 @@ export default function VetAgent() {
           {!isConnected ? (
             <Button
               className="mt-20 bg-green-500 hover:bg-green-600"
-              onClick={StartChat}
+              onClick={StartChat} disabled={loading}
             >
+              <Loader2 className={`animate-spin ${loading ? "block" : "hidden"}`} />
               <PhoneCall /> Start Call
             </Button>
           ) : (

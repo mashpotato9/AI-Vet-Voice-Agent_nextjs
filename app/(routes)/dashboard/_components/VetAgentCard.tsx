@@ -10,8 +10,9 @@ export type vetAgent = {
     description: string;
     image: string;
     agentPrompt: string;
-    voiceId: string;
+    voiceId?: string;
     subscriptionRequired: boolean;
+    
 }
 type Props = {
     vetAgent: vetAgent;
