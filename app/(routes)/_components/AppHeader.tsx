@@ -1,12 +1,14 @@
+'use client'
 import React from 'react'
 import Image from 'next/image';
 import { UserButton } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 const menuOptions = [
     {
         id: 1,
         name: 'Home',
-        path: '/home',
+        path: '/',
     },
     {
         id: 2,
@@ -26,13 +28,18 @@ const menuOptions = [
 ];
 
 export default function AppHeader() {
+    const router = useRouter();
+    const handleNavigation = (path: string) => {
+        router.push(path);
+    };
+
   return (
     <div className='flex items-center justify-between py-1 px-10 md:px-20 lg:px-40 shadow'>
         <Image src={"/logo.png"} alt="Logo" width={130} height={130} />
         <div className='hidden md:flex items-center gap-15'>
             {menuOptions.map((option, index) => (
                 <div key={index}>
-                    <h2 className='text-xl hover:font-bold cursor-pointer transition-all duration-200'>{option.name}</h2>
+                    <h2 className='text-xl hover:font-bold cursor-pointer transition-all duration-200' onClick={() => handleNavigation(option.path)}>{option.name}</h2>
                 </div>
             ))}
         </div>
