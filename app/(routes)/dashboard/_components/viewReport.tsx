@@ -1,0 +1,111 @@
+import React from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { SessionInfo } from "../vet-agent/[sessionId]/page";
+import moment from "moment";
+
+type props = {
+    session: SessionInfo;
+};
+
+export default function ViewReport({ session }: props) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">View Report</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[55vh] overflow-hidden">
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle asChild>
+            <h2 className="text-center text-4xl">Vet Report</h2>
+          </DialogTitle>
+          <DialogDescription asChild>
+            <div className="mt-3 space-y-6 overflow-y-auto max-h-[40vh]">
+                <div>
+                    <h2 className="font-bold text-blue-400 text-lg mb-3">Session Info</h2>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p><strong>Vet Specialization:</strong> {session.selectedVet.specialist}</p>
+                            <p><strong>Patient:</strong> {session.report?.user || "Anonymous"}</p>
+                        </div>
+                        <div>
+                            <p><strong>Consultation Date:</strong> {moment(session.createdAt).format("MMMM Do YYYY")}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {session.report && (
+                    <>
+                        <div>
+                            <h2 className="font-bold text-blue-400 text-lg mb-3">Medical Assessment</h2>
+                            <div className="space-y-2 text-sm">
+                                <p><strong>Chief Complaint:</strong> {session.report.chiefComplaint}</p>
+                                <p><strong>Summary:</strong> {session.report.summary}</p>
+                                <p><strong>Duration:</strong> {session.report.duration}</p>
+                                <p><strong>Severity:</strong> <span className={`px-2 py-1 rounded text-xs ${
+                                    session.report.severity === 'severe' ? 'bg-red-100 text-red-800' :
+                                    session.report.severity === 'moderate' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-green-100 text-green-800'
+                                }`}>{session.report.severity}</span></p>
+                            </div>
+                        </div>
+
+                        {session.report.symptoms?.length > 0 && (
+                            <div>
+                                <h2 className="font-bold text-blue-400 text-lg mb-3">Symptoms</h2>
+                                <ul className="list-disc list-inside text-sm space-y-1">
+                                    {session.report.symptoms.map((symptom, index) => (
+                                        <li key={index}>{symptom}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {session.report.medicationsMentioned?.length > 0 && (
+                            <div>
+                                <h2 className="font-bold text-blue-400 text-lg mb-3">Medications Mentioned</h2>
+                                <ul className="list-disc list-inside text-sm space-y-1">
+                                    {session.report.medicationsMentioned.map((med, index) => (
+                                        <li key={index}>{med}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {session.report.recommendations?.length > 0 && (
+                            <div>
+                                <h2 className="font-bold text-blue-400 text-lg mb-3">Recommendations</h2>
+                                <ul className="list-disc list-inside text-sm space-y-1">
+                                    {session.report.recommendations.map((rec, index) => (
+                                        <li key={index}>{rec}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {!session.report && (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">No report available for this session</p>
+                    </div>
+                )}
+            
+                <hr className="border-gray-300" />
+                <div className="text-center text-gray-400">
+                    this report was generated by AI and should not be used as a substitute for professional veterinary advice.
+                </div>
+            </div>
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+}

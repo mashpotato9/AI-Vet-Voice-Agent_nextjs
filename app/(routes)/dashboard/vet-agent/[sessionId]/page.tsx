@@ -11,11 +11,25 @@ import Vapi from "@vapi-ai/web";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+interface ReportData {
+  sessionId: string;
+  agent: string;
+  user: string;
+  timestamp: string;
+  chiefComplaint: string;
+  summary: string;
+  symptoms: string[];
+  duration: string;
+  severity: string;
+  medicationsMentioned: string[];
+  recommendations: string[];
+}
+
 export type SessionInfo = {
   id: number;
   notes: string;
   sessionId: string;
-  report: JSON;
+  report: ReportData | null;
   selectedVet: vetAgent;
   createdBy: string;
   createdAt: string;

@@ -10,6 +10,7 @@ import {
 import { SessionInfo } from "../vet-agent/[sessionId]/page";
 import { Button } from "@/components/ui/button";
 import moment from "moment";
+import ViewReport from "./viewReport";
 
 type props = {
   history: SessionInfo[];
@@ -34,7 +35,7 @@ export default function HistoryTable({ history }: props) {
             <TableCell>{session.notes}</TableCell>
             <TableCell>{moment(session.createdAt).format("MMMM Do YYYY")}</TableCell>
             <TableCell className="text-right">
-              <Button variant="outline">View Report</Button>
+              <ViewReport session={session} />
             </TableCell>
           </TableRow>
         ))}
