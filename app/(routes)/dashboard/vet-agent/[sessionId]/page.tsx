@@ -11,7 +11,7 @@ import Vapi from "@vapi-ai/web";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-type SessionInfo = {
+export type SessionInfo = {
   id: number;
   notes: string;
   sessionId: string;

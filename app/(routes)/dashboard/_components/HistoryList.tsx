@@ -4,10 +4,22 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import React, { useState } from 'react'
 import NewSession from './NewSession';
+import axios from 'axios';
+import HistoryTable from './HistoryTable';
+import { SessionInfo } from '../vet-agent/[sessionId]/page';
 
 export default function HistoryList() {
 
-    const [history, setHistory] = useState([]);
+    const [history, setHistory] = useState<SessionInfo[]>([]);
+
+    React.useEffect(() => {
+        getHistory();
+    }, []);
+    
+    const getHistory = async () => {
+        const res = await axios.get('/api/session-chat?sessionId=all');
+        setHistory(res.data);
+    };
 
   return (
     <div className='mt-10'>
@@ -22,7 +34,7 @@ export default function HistoryList() {
             </div>
         ) : (
             <div>
-                List
+                <HistoryTable history={history} />
             </div>
         )}
     </div>
