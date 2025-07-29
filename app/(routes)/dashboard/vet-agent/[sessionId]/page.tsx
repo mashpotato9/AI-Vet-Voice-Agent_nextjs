@@ -8,6 +8,8 @@ import { Circle, Loader2, PhoneCall, PhoneOff } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Vapi from "@vapi-ai/web";
+import { useRouter } from "next/router";
+import { toast } from "sonner";
 
 type SessionInfo = {
   id: number;
@@ -23,7 +25,7 @@ type SessionInfo = {
 type message = {
   role: string;
   text: string;
-}
+};
 
 export default function VetAgent() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -33,7 +35,9 @@ export default function VetAgent() {
   const [currRole, setCurrRole] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<string>("");
   const [messages, setMessages] = useState<message[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [startCallLoading, setStartCallLoading] = useState<boolean>(false);
+  const [endCallLoading, setEndCallLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   useEffect(() => {
     GetSessionInfo();
@@ -46,20 +50,21 @@ export default function VetAgent() {
   };
 
   const StartChat = async () => {
-    setLoading(true);
+    setStartCallLoading(true);
     const vapi = new Vapi(process.env.NEXT_PUBLIC_VAPI_API_KEY!);
     setVapiInstance(vapi);
 
     const VapiAgentConfig = {
       name: "AI Pet Care Agent",
-      firstMessage: "Hello! I'm your AI Pet Care Agent. I'm here to help you with your pet's health and wellness. How can I assist you today?",
+      firstMessage:
+        "Hello! I'm your AI Pet Care Agent. I'm here to help you with your pet's health and wellness. How can I assist you today?",
       transcriber: {
         provider: "assembly-ai",
         language: "en",
       },
       voice: {
         provider: "playht",
-        voiceId: sessionInfo?.selectedVet?.voiceId
+        voiceId: sessionInfo?.selectedVet?.voiceId,
       },
       model: {
         provider: "openai",
@@ -67,14 +72,13 @@ export default function VetAgent() {
         messages: [
           {
             role: "system",
-            content: sessionInfo?.selectedVet?.agentPrompt
-          }
-        ]
-      }
-    }
+            content: sessionInfo?.selectedVet?.agentPrompt,
+          },
+        ],
+      },
+    };
 
     console.log("VapiAgentConfig:", VapiAgentConfig);
-
 
     // @ts-ignore
     vapi.start(VapiAgentConfig);
@@ -82,18 +86,17 @@ export default function VetAgent() {
     vapi.on("call-start", () => {
       console.log("Call started");
       setIsConnected(true);
-      setLoading(false);
+      setStartCallLoading(false);
     });
     vapi.on("call-end", () => {
-      setIsConnected(false);
       console.log("Call ended");
     });
     vapi.on("message", (message) => {
       if (message.type === "transcript") {
-        const {role, transcriptType, transcript} = message;
+        const { role, transcriptType, transcript } = message;
         if (transcriptType === "partial") {
-        setTranscript(transcript);
-        setCurrRole(role);
+          setTranscript(transcript);
+          setCurrRole(role);
         } else if (transcriptType === "final") {
           setMessages((prevMessages: message[]) => [
             ...prevMessages,
@@ -115,16 +118,42 @@ export default function VetAgent() {
     });
   };
 
-  const endCall = () => {
+  const endCall = async () => {
+    setEndCallLoading(true);
     if (!vapiInstance) return;
     vapiInstance.stop();
 
-    vapiInstance.off("call-start");
-    vapiInstance.off("call-end");
-    vapiInstance.off("message");
+    try {
+      vapiInstance.off("call-start");
+      vapiInstance.off("call-end");
+      vapiInstance.off("message");
+      vapiInstance.off("speech-start");
+      vapiInstance.off("speech-end");
+    } catch (error) {
+      console.log("Error removing event listeners:", error);
+    }
 
-    setIsConnected(false);
     setVapiInstance(null);
+
+    const res = await GenerateReport();
+    setIsConnected(false);
+    setEndCallLoading(false);
+    toast.success("Report generated successfully!");
+
+    setTimeout(() => {
+      router.replace("/dashboard");
+    }, 3000);
+  };
+
+  const GenerateReport = async () => {
+    const result = await axios.post("/api/generate-report", {
+      sessionId: sessionId,
+      messages: messages,
+      sessionInfo: sessionInfo,
+    });
+
+    console.log("Report generated:", result.data);
+    return result.data;
   };
 
   return (
@@ -155,19 +184,42 @@ export default function VetAgent() {
           <p className="text-sm text-gray-400">Pet Care AI Agent</p>
           <div className="mt-32 w-full min-h-[200px]">
             {!isConnected ? (
-              <h2 className="text-gray-500 text-center mb-2">Live Transcript</h2>
+              <h2 className="text-gray-500 text-center mb-2">
+                Live Transcript
+              </h2>
             ) : (
               <div className="space-y-2">
                 {messages?.slice(-4).map((msg: message, index) => (
-                  <div key={index} className={`flex ${msg.role === "assistant" ? "justify-start" : "justify-end"}`}>
-                    <div className={`text-lg p-2 rounded-lg max-w-[70%] ${msg.role === "assistant" ? "bg-blue-100" : "bg-green-100"}`}>
+                  <div
+                    key={index}
+                    className={`flex ${
+                      msg.role === "assistant" ? "justify-start" : "justify-end"
+                    }`}
+                  >
+                    <div
+                      className={`text-lg p-2 rounded-lg max-w-[70%] ${
+                        msg.role === "assistant"
+                          ? "bg-blue-100"
+                          : "bg-green-100"
+                      }`}
+                    >
                       {msg.text}
                     </div>
                   </div>
                 ))}
                 {transcript && (
-                  <div className={`flex ${currRole === "assistant" ? "justify-start" : "justify-end"}`}>
-                    <div className={`text-lg p-2 rounded-lg max-w-[70%] opacity-70 ${currRole === "assistant" ? "bg-blue-100" : "bg-green-100"}`}>
+                  <div
+                    className={`flex ${
+                      currRole === "assistant" ? "justify-start" : "justify-end"
+                    }`}
+                  >
+                    <div
+                      className={`text-lg p-2 rounded-lg max-w-[70%] opacity-70 ${
+                        currRole === "assistant"
+                          ? "bg-blue-100"
+                          : "bg-green-100"
+                      }`}
+                    >
                       {transcript}
                     </div>
                   </div>
@@ -178,14 +230,29 @@ export default function VetAgent() {
           {!isConnected ? (
             <Button
               className="mt-20 bg-green-500 hover:bg-green-600"
-              onClick={StartChat} disabled={loading}
+              onClick={StartChat}
+              disabled={startCallLoading}
             >
-              <Loader2 className={`animate-spin ${loading ? "block" : "hidden"}`} />
-              <PhoneCall /> Start Call
+              {startCallLoading ? (
+                <Loader2 className="animate-spin mr-2" />
+              ) : (
+                <PhoneCall className="mr-2" />
+              )}{" "}
+              Start Call
             </Button>
           ) : (
-            <Button className="mt-20" variant={"destructive"} onClick={endCall}>
-              <PhoneOff /> End Call
+            <Button
+              className="mt-20"
+              variant={"destructive"}
+              onClick={endCall}
+              disabled={endCallLoading}
+            >
+              {endCallLoading ? (
+                <Loader2 className="animate-spin mr-2" />
+              ) : (
+                <PhoneCall className="mr-2" />
+              )}{" "}
+              End Call
             </Button>
           )}
         </div>
