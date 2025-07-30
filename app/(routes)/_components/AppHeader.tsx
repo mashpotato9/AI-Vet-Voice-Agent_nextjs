@@ -7,8 +7,8 @@ import Link from 'next/link';
 const menuOptions = [
     {
         id: 1,
-        name: 'Home',
-        path: '/',
+        name: 'Dashboard',
+        path: '/dashboard',
     },
     {
         id: 2,
@@ -18,7 +18,7 @@ const menuOptions = [
     {
         id: 3,
         name: 'Pricing',
-        path: '/pricing',
+        path: '/billing',
     },
     {
         id: 4,

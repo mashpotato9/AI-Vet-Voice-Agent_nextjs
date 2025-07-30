@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -19,6 +19,8 @@ import { vetAgent } from "./VetAgentCard";
 import { Loader2 } from "lucide-react";
 import SuggestedVetCard from "./SuggestedVetCard";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+import { useHistory } from "@/context/HistoryContext";
 
 interface NewSessionProps {
   children: ReactNode;
@@ -30,6 +32,10 @@ export default function NewSession({ children }: NewSessionProps) {
   const [suggestedVets, setSuggestedVets] = useState<vetAgent[]>();
   const [selectedVet, setSelectedVet] = useState<vetAgent>();
   const router = useRouter();
+  const { history, refreshHistory } = useHistory();
+
+  const { has } = useAuth();
+  const isPro = has && has({ plan: "pro" });
 
   const OnClickNext = async () => {
     setLoading(true);
@@ -52,6 +58,8 @@ export default function NewSession({ children }: NewSessionProps) {
     console.log(res.data);
     if (res.data?.sessionId) {
       console.log(res.data.sessionId);
+      // refresh history to update the context
+      await refreshHistory();
       // route to consultation page
       router.push('/dashboard/vet-agent/' + res.data.sessionId);
     }
@@ -60,7 +68,7 @@ export default function NewSession({ children }: NewSessionProps) {
 
   return (
     <Dialog>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger asChild disabled={!isPro && history.length!=0}>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           {!suggestedVets ? (

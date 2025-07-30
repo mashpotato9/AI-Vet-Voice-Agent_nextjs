@@ -1,26 +1,39 @@
-import { Button } from '@/components/ui/button';
-import { IconArrowRampRight, IconArrowRight } from '@tabler/icons-react';
-import Image from 'next/image';
-import React from 'react'
-import NewSession from './NewSession';
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { IconArrowRampRight, IconArrowRight } from "@tabler/icons-react";
+import Image from "next/image";
+import React from "react";
+import NewSession from "./NewSession";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@clerk/nextjs";
+import { useHistory } from "@/context/HistoryContext";
 
 export type vetAgent = {
-    id: number;
-    specialist: string;
-    description: string;
-    image: string;
-    agentPrompt: string;
-    voiceId?: string;
-    subscriptionRequired: boolean;
-    
-}
+  id: number;
+  specialist: string;
+  description: string;
+  image: string;
+  agentPrompt: string;
+  voiceId?: string;
+  subscriptionRequired: boolean;
+};
 type Props = {
-    vetAgent: vetAgent;
-}
+  vetAgent: vetAgent;
+};
 
-export default function VetAgentCard({vetAgent}: Props) {
+export default function VetAgentCard({ vetAgent }: Props) {
+  const { has } = useAuth();
+  const isPro = has && has({ plan: "pro" });
+  const { history } = useHistory();
+
   return (
-    <div>
+    <div className="relative">
+      {vetAgent.subscriptionRequired && (
+        <Badge className="absolute m-2 right-0" variant="default">
+          Pro
+        </Badge>
+      )}
       <Image
         src={vetAgent.image}
         alt={vetAgent.specialist}
@@ -28,11 +41,18 @@ export default function VetAgentCard({vetAgent}: Props) {
         height={300}
         className="rounded-lg w-full h-[400px] object-cover mb-1"
       />
-      <h2 className='font-bold text-lg mb-1'>{vetAgent.specialist}</h2>
-      <p className='line-clamp-2 text-sm text-gray-600 mb-2'>{vetAgent.description}</p>
+      <h2 className="font-bold text-lg mb-1">{vetAgent.specialist}</h2>
+      <p className="line-clamp-2 text-sm text-gray-600 mb-2">
+        {vetAgent.description}
+      </p>
       <NewSession>
-        <Button className='w-full hover:scale-110'>Start Consultation <IconArrowRight /></Button>
+        <Button
+          className="w-full hover:scale-110"
+          disabled={(!isPro && vetAgent.subscriptionRequired) || (!isPro && history.length > 0)}
+        >
+          Start Consultation <IconArrowRight />
+        </Button>
       </NewSession>
     </div>
-  )
+  );
 }

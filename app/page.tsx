@@ -6,6 +6,7 @@ import { UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
+import Image from "next/image";
 
 
 export default function HeroSectionOne() {
@@ -116,7 +117,12 @@ const Navbar = () => {
   return (
     <nav className="flex w-full items-center justify-between border-t border-b border-neutral-200 px-4 py-4 dark:border-neutral-800">
       <div className="flex items-center gap-2">
-        <div className="size-7 rounded-full bg-gradient-to-br from-violet-500 to-pink-500" />
+        <Image
+          src="/logo-vertical.png"
+          alt="Logo"
+          width={70}
+          height={70}
+        />
         <h1 className="text-base font-bold md:text-2xl">Veterinary Answering Service</h1>
       </div>
       {user ? (

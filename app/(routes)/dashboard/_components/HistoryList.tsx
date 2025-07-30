@@ -2,24 +2,16 @@
 
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import React, { useState } from 'react'
 import NewSession from './NewSession';
-import axios from 'axios';
 import HistoryTable from './HistoryTable';
-import { SessionInfo } from '../vet-agent/[sessionId]/page';
+import { useHistory } from '@/context/HistoryContext';
 
 export default function HistoryList() {
+    const { history, loading } = useHistory();
 
-    const [history, setHistory] = useState<SessionInfo[]>([]);
-
-    React.useEffect(() => {
-        getHistory();
-    }, []);
-    
-    const getHistory = async () => {
-        const res = await axios.get('/api/session-chat?sessionId=all');
-        setHistory(res.data);
-    };
+  if (loading) {
+    return <div className='mt-10 text-center'>Loading...</div>;
+  }
 
   return (
     <div className='mt-10'>
