@@ -96,7 +96,7 @@ A cutting-edge AI-powered voice consultation platform that provides 24/7 veterin
    DATABASE_URL=your_neon_database_url
    
    # OpenAI
-   OPENAI_API_KEY=your_openai_api_key
+   OPEN_ROUTER_API_KEY=your_open_router_api_key
    
    # Vapi AI
    VAPI_API_KEY=your_vapi_api_key
@@ -201,10 +201,6 @@ npm start
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
 - [Vapi AI](https://vapi.ai) for voice AI technology
@@ -212,10 +208,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Clerk](https://clerk.dev) for authentication services
 - [Neon](https://neon.tech) for serverless PostgreSQL
 - [Vercel](https://vercel.com) for hosting platform
-
-## 📞 Support
-
-For support, email support@aivetvision.com or create an issue in this repository.
 
 ---
 
