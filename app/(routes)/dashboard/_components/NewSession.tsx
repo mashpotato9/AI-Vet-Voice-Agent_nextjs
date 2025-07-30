@@ -58,8 +58,6 @@ export default function NewSession({ children }: NewSessionProps) {
     console.log(res.data);
     if (res.data?.sessionId) {
       console.log(res.data.sessionId);
-      // refresh history to update the context
-      await refreshHistory();
       // route to consultation page
       router.push('/dashboard/vet-agent/' + res.data.sessionId);
     }
